@@ -4,10 +4,14 @@ import { timeLine } from "../utils";
 import LineChart from "../graph/Linechart";
 const Order = () => {
   const links = [
-    "http://localhost:5000/api/products/day",
-    "http://localhost:5000/api/products/month",
-    "http://localhost:5000/api/products/quater",
-    "http://localhost:5000/api/products/year",
+    // "http://localhost:5000/api/products/day",
+    // "http://localhost:5000/api/products/month",
+    // "http://localhost:5000/api/products/quater",
+    // "http://localhost:5000/api/products/year",
+    `${import.meta.env.VITE_API_URL_PROD}/api/products/day`,
+    `${import.meta.env.VITE_API_URL_PROD}/api/products/month`,
+    `${import.meta.env.VITE_API_URL_PROD}/api/products/quater`,
+    `${import.meta.env.VITE_API_URL_PROD}/api/products/year`,
   ];
   const [dataLink, setDataLink] = useState(links[0]);
   const [dataLinkForLine, setDataLinkForLine] = useState(links[0]);

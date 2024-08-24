@@ -1,10 +1,11 @@
 import CustomerBarchart from "../graph/CustomerBarchart";
 const Customer = () => {
   const links = [
-    "http://localhost:5000/api/customers/new-customer",
+    // "http://localhost:5000/api/customers/new-customer",
     // "http://localhost:5000/api/new-customer/month",
     // "http://localhost:5000/api/customers/quater",
     // "http://localhost:5000/api/customers/year",
+    `${import.meta.env.VITE_API_URL_PROD}/api/customers/new-customer`,
   ];
 
   // const [dataLinkForLine, setDataLinkForLine] = useState(links[0]);
