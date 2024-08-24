@@ -1,0 +1,76 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: #333;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-wrapper {
+  padding: 1rem;
+}
+.sidebar-items {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sidebar-items > a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: rgba(255, 255, 255, 0.87);
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s;
+  position: relative;
+}
+
+.sidebar-items > a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-items > a.active {
+  background: rgba(255, 255, 255, 0.2);
+}
+.sidebar-items > a::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #fff;
+  transition: all 0.5s;
+}
+
+.sidebar-items > a:hover::before {
+  width: 50%;
+}
+
+.sidebar-items > a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 2px;
+  background: #fff;
+  transition: all 0.5s;
+}
+
+.sidebar-items > a:hover:after {
+  width: 50%;
+}
+
+.sidebar-items > a.active::before {
+  width: 50%;
+}
+
+.sidebar-items > a.active::after {
+  width: 50%;
+}
