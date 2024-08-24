@@ -1,9 +1,16 @@
+/* eslint-disable react/prop-types */
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { getRandomColor } from "../utils";
 
 // eslint-disable-next-line react/prop-types
-const LineChart = ({ link, widthFromParent = 600 }) => {
+const LineChart = ({
+  link,
+  widthFromParent = 600,
+  // isDay,
+  isQuarter,
+  isMonth,
+}) => {
   const ref = useRef();
   const colors = ["#2185C5"];
   useEffect(() => {
@@ -23,50 +30,41 @@ const LineChart = ({ link, widthFromParent = 600 }) => {
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-
+    let x;
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const quatertNames = ["Q1", "Q2", "Q3", "Q4"];
     // Fetch and process data
     d3.json(link)
       .then((data) => {
         // Access the array within the data object
         const salesData = data.products;
 
-        // salesData.forEach((d) => {
-        //   d._id = +d._id;
-        //   d.totalSales = +d.totalSales; // Ensure `totalSales` is a number
-        // });
-
-        // Determine if `_id` represents months or days
-        const maxId = data.products.length;
-
-        let isMonth = maxId == 12;
-        let isQuarter = maxId == 4;
         // Define the x-axis scale
-        let x;
-        let monthNames;
-        let quatertNames;
+
         if (isMonth) {
           // If `_id` represents months, map to month names
-          monthNames = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ];
-
           x = d3
-            .scalePoint()
-            .domain(salesData.map((d) => monthNames[d._id - 1] || d._id))
+            .scaleBand()
             .range([0, width])
-            .padding(0.5);
-
+            .domain(
+              data.products.map(
+                (d) => months[d._id.month - 1] + "-" + d._id.year
+              )
+            )
+            .padding(0.2);
           svg
             .append("g")
             .attr("transform", `translate(0, ${height})`)
@@ -76,14 +74,15 @@ const LineChart = ({ link, widthFromParent = 600 }) => {
             .style("text-anchor", "end");
         } else if (isQuarter) {
           // If `_id` represents months, map to month names
-          quatertNames = ["Q1", "Q2", "Q3", "Q4"];
-
           x = d3
-            .scalePoint()
-            .domain(salesData.map((d) => quatertNames[d._id - 1] || d._id))
+            .scaleBand()
             .range([0, width])
-            .padding(0.5);
-
+            .domain(
+              data.products.map(
+                (d) => quatertNames[d._id.quater - 1] + "-" + d._id.year
+              )
+            )
+            .padding(0.2);
           svg
             .append("g")
             .attr("transform", `translate(0, ${height})`)
@@ -118,17 +117,13 @@ const LineChart = ({ link, widthFromParent = 600 }) => {
         // Define the line generator
         const line = d3
           .line()
-          .x((d) => {
-            if (isMonth) {
-              console.log(monthNames[d._id - 1] || d._id);
-              return x(monthNames[d._id - 1] || d._id);
-            } else if (isQuarter) {
-              console.log(quatertNames[d._id - 1] || d._id);
-              return x(quatertNames[d._id - 1] || d._id);
-            } else {
-              return x(d._id);
-            }
-          })
+          .x((d) =>
+            isQuarter
+              ? x(quatertNames[d._id.quater - 1] + "-" + d._id.year)
+              : isMonth
+              ? x(months[d._id.month - 1] + "-" + d._id.year)
+              : x(d._id)
+          )
           .y((d) => y(d.totalSales))
           .curve(d3.curveMonotoneX); // Smooth curve
 
@@ -147,15 +142,13 @@ const LineChart = ({ link, widthFromParent = 600 }) => {
           .data(salesData)
           .enter()
           .append("circle")
-          .attr("cx", (d) => {
-            if (isMonth) {
-              return x(monthNames[d._id - 1] || d._id);
-            } else if (isQuarter) {
-              return x(quatertNames[d._id - 1] || d._id);
-            } else {
-              return x(d._id);
-            }
-          })
+          .attr("cx", (d) => 
+            isQuarter
+              ? x(quatertNames[d._id.quater - 1] + "-" + d._id.year)
+              : isMonth
+              ? x(months[d._id.month - 1] + "-" + d._id.year)
+              : x(d._id)
+          )
           .attr("cy", (d) => y(d.totalSales))
           .attr("r", 4)
           .attr("fill", getRandomColor(colors));

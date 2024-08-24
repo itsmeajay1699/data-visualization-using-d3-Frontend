@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { getRandomColor } from "../utils";
 
 // eslint-disable-next-line react/prop-types
-const CustomerBarchart = ({ link, widthFromParent }) => {
+const CustomerBarchart = ({ link, widthFromParent, isGeo = false }) => {
   const ref = useRef();
   const colors = ["#2185C5"];
   console.log("Barchart link", link);
@@ -35,43 +35,83 @@ const CustomerBarchart = ({ link, widthFromParent }) => {
       "November",
       "December",
     ];
-
+    let cityMap;
+    let x;
+    let y;
     d3.json(link).then(function (data) {
-      const x = d3
-        .scaleBand()
-        .range([0, width])
-        .domain(
-          data.customers.map((d) => months[d._id.month - 1] + "-" + d._id.year)
-        )
-        .padding(0.2);
-      svg
-        .append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll("text")
-        .attr("transform", "translate(-10,0)rotate(-45)")
-        .style("text-anchor", "end");
+      if (!isGeo) {
+        x = d3
+          .scaleBand()
+          .range([0, width])
+          .domain(
+            data.customers.map(
+              (d) => months[d._id.month - 1] + "-" + d._id.year
+            )
+          )
+          .padding(0.2);
+        svg
+          .append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+          .attr("transform", "translate(-10,0)rotate(-45)")
+          .style("text-anchor", "end");
 
-      const y = d3
-        .scaleLinear()
-        .domain([0, d3.max(data.customers, (d) => d.count)])
-        .range([height, 0]);
-      svg.append("g").call(d3.axisLeft(y));
+        y = d3
+          .scaleLinear()
+          .domain([0, d3.max(data.customers, (d) => d.count)])
+          .range([height, 0]);
+        svg.append("g").call(d3.axisLeft(y));
 
-      svg
-        .selectAll("mybar")
-        .data(data.customers)
-        .join("rect")
-        .attr("x", (d) => x(months[d._id.month - 1] + "-" + d._id.year))
-        .attr("y", (d) => y(d.count))
-        .attr("width", x.bandwidth())
-        .attr("height", (d) => height - y(d.count))
-        .attr("fill", () => getRandomColor(colors));
+        svg
+          .selectAll("mybar")
+          .data(data.customers)
+          .join("rect")
+          .attr("x", (d) => x(months[d._id.month - 1] + "-" + d._id.year))
+          .attr("y", (d) => y(d.count))
+          .attr("width", x.bandwidth())
+          .attr("height", (d) => height - y(d.count))
+          .attr("fill", () => getRandomColor(colors));
+      } else {
+        cityMap = data.customerCity.reduce((map, item) => {
+          map[item._id] = item._id;
+          return map;
+        }, {});
+
+        x = d3
+          .scaleBand()
+          .range([0, width])
+          .domain(data.customerCity.map((d) => cityMap[d._id]))
+          .padding(0.2);
+        svg
+          .append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+          .attr("transform", "translate(-10,0)rotate(-45)")
+          .style("text-anchor", "end");
+
+        y = d3
+          .scaleLinear()
+          .domain([0, d3.max(data.customerCity, (d) => d.count)])
+          .range([height, 0]);
+        svg.append("g").call(d3.axisLeft(y));
+
+        svg
+          .selectAll("mybar")
+          .data(data.customerCity)
+          .join("rect")
+          .attr("x", (d) => x(cityMap[d._id]))
+          .attr("y", (d) => y(d.count))
+          .attr("width", x.bandwidth())
+          .attr("height", (d) => height - y(d.count))
+          .attr("fill", () => getRandomColor(colors));
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [link]);
 
-  return <svg width={1000} height={400} id="barchart" ref={ref} />;
+  return <svg width={widthFromParent} height={400} id="barchart" ref={ref} />;
 };
 
 export default CustomerBarchart;

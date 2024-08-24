@@ -42,7 +42,12 @@ const Order = () => {
                 </div>
               </div>
               <div className="graph-img-container">
-                <Barchart link={dataLink} widthFromParent={700} />
+                <Barchart
+                  link={dataLink}
+                  isQuater={dataLink === links[2]}
+                  isMonth={dataLink === links[1]}
+                  widthFromParent={900}
+                />
               </div>
             </div>
           </div>
@@ -76,7 +81,13 @@ const Order = () => {
                   alt=""
                 /> */}
                 {/* localhost:5000/api/products/day */}
-                <LineChart link={dataLinkForLine} />
+                <LineChart
+                  link={dataLinkForLine}
+                  widthFromParent={900}
+                  isDay={dataLinkForLine === links[0]}
+                  isMonth={dataLinkForLine === links[1]}
+                  isQuarter={dataLinkForLine === links[2]}
+                />
               </div>
             </div>
           </div>
