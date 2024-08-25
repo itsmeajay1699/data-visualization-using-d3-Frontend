@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { getRandomColor } from "../utils";
@@ -71,7 +72,37 @@ const CustomerBarchart = ({ link, widthFromParent, isGeo = false }) => {
           .attr("y", (d) => y(d.count))
           .attr("width", x.bandwidth())
           .attr("height", (d) => height - y(d.count))
-          .attr("fill", () => getRandomColor(colors));
+          .attr("fill", () => getRandomColor(colors))
+          .on("mouseover", function (event, d) {
+            d3.select(this).attr("fill", "red");
+
+            svg
+              .append("text")
+              .attr(
+                "x",
+                x(months[d._id.month - 1] + "-" + d._id.year) +
+                  x.bandwidth() / 2
+              )
+              .attr("y", y(d.totalSales) - 10)
+              .attr("text-anchor", "middle")
+              .text(Math.round(d.count))
+              .attr("fill", "#fff")
+              .attr("font-size", "15px")
+              .attr("font-weight", "bold");
+          })
+          .on("mouseout", function (event, d) {
+            d3.select(this).attr("fill", getRandomColor(colors));
+            svg.selectAll("text").remove();
+            svg.append("g").call(d3.axisLeft(y));
+
+            svg
+              .append("g")
+              .attr("transform", `translate(0, ${height})`)
+              .call(d3.axisBottom(x))
+              .selectAll("text")
+              .attr("transform", "translate(-10,0)rotate(-45)")
+              .style("text-anchor", "end");
+          });
       } else {
         cityMap = data.customerCity.reduce((map, item) => {
           map[item._id] = item._id;
@@ -105,7 +136,33 @@ const CustomerBarchart = ({ link, widthFromParent, isGeo = false }) => {
           .attr("y", (d) => y(d.count))
           .attr("width", x.bandwidth())
           .attr("height", (d) => height - y(d.count))
-          .attr("fill", () => getRandomColor(colors));
+          .attr("fill", () => getRandomColor(colors))
+          .on("mouseover", function (event, d) {
+            d3.select(this).attr("fill", "red");
+            svg
+              .append("text")
+              .attr("x", x(cityMap[d._id]))
+              .attr("y", y(d.totalSales) - 10)
+              .attr("text-anchor", "middle")
+              .text(Math.round(d.count))
+              .attr("fill", "#fff")
+              .attr("font-size", "15px")
+              .attr("font-weight", "bold");
+          })
+          .on("mouseout", function (event, d) {
+            d3.select(this).attr("fill", getRandomColor(colors));
+            d3.select(this).attr("fill", getRandomColor(colors));
+            svg.selectAll("text").remove();
+            svg.append("g").call(d3.axisLeft(y));
+
+            svg
+              .append("g")
+              .attr("transform", `translate(0, ${height})`)
+              .call(d3.axisBottom(x))
+              .selectAll("text")
+              .attr("transform", "translate(-10,0)rotate(-45)")
+              .style("text-anchor", "end");
+          });
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

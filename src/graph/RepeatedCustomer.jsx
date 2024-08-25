@@ -12,7 +12,7 @@ const RepeatedCustBarchart = ({
   // isYear,
 }) => {
   const ref = useRef();
-  const colors = ["#2185C5", "#7ECEFD", "#FFF6E5", "#FF7F66"];
+  const colors = ["#2185C5"];
 
   useEffect(() => {
     d3.select(ref.current).selectAll("*").remove();
@@ -137,7 +137,34 @@ const RepeatedCustBarchart = ({
         .attr("y", (d) => y(d.repeatCustomers))
         .attr("width", x.bandwidth())
         .attr("height", (d) => height - y(d.repeatCustomers))
-        .attr("fill", getRandomColor(colors));
+        .attr("fill", getRandomColor(colors))
+        .on("mouseover", function (event, d) {
+          d3.select(this).attr("fill", "red");
+          svg
+            .append("text")
+            .attr("x", x(d.repeatCustomers))
+            .attr("y", y(d.repeatCustomers) - 10)
+            .attr("text-anchor", "middle")
+            .text(Math.round(d.repeatCustomers))
+            .attr("fill", "#fff")
+            .attr("font-size", "15px")
+            .attr("font-weight", "bold");
+        })
+        // eslint-disable-next-line no-unused-vars
+        .on("mouseout", function (event, d) {
+          d3.select(this).attr("fill", getRandomColor(colors));
+          d3.select(this).attr("fill", getRandomColor(colors));
+          svg.selectAll("text").remove();
+          svg.append("g").call(d3.axisLeft(y));
+
+          svg
+            .append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-45)")
+            .style("text-anchor", "end");
+        });
     });
   }, [link]);
 

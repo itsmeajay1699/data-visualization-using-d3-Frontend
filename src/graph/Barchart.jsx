@@ -5,7 +5,7 @@ import { getRandomColor } from "../utils";
 // eslint-disable-next-line react/prop-types
 const Barchart = ({ link, widthFromParent, isQuater, isMonth }) => {
   const ref = useRef();
-  const colors = ["#2185C5", "#7ECEFD", "#FFF6E5", "#FF7F66"];
+  const colors = ["#2185C5"];
   console.log("Barchart link", link);
   useEffect(() => {
     d3.select(ref.current).selectAll("*").remove();
@@ -106,7 +106,35 @@ const Barchart = ({ link, widthFromParent, isQuater, isMonth }) => {
         .attr("y", (d) => y(d.totalSales))
         .attr("width", x.bandwidth())
         .attr("height", (d) => height - y(d.totalSales))
-        .attr("fill", getRandomColor(colors));
+        .attr("fill", getRandomColor(colors))
+        .on("mouseover", function (event, d) {
+          console.log("d", d.totalSales, event);
+          d3.select(this).attr("fill", "red");
+          svg
+            .append("text")
+            .attr("x", x(d._id) + x.bandwidth() / 2)
+            .attr("y", y(d.totalSales) - 10)
+            .attr("text-anchor", "middle")
+            .text(Math.round(d.totalSales))
+            .attr("fill", "#fff")
+            .attr("font-size", "15px")
+            .attr("font-weight", "bold");
+        })
+        // eslint-disable-next-line no-unused-vars
+        .on("mouseout", function (event, d) {
+          d3.select(this).attr("fill", getRandomColor(colors));
+          svg.selectAll("text").remove();
+          // above line also remove the text of x-axis so we need to add it again
+          svg
+            .append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-45)")
+            .style("text-anchor", "end");
+
+          svg.append("g").call(d3.axisLeft(y));
+        });
     });
   }, [link]);
 
